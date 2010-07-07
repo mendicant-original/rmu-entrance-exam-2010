@@ -1,0 +1,305 @@
+################
+# gabe_bell.rb #
+################
+
+## Interesting
+# Uses character based diffing
+# Quacks a bit like a String
+
+## Problems
+# Patches String to add diff() function
+# Introduces a subtle bug into remove_text()
+# Introduces severe performance issues
+
+$ ruby memory_test.rb 
+Starting Memory:
+1492
+Adding 100 characters, 1 at a time
+Current memory footprint:
+1652
+Adding 1000 characters, 1 at a time
+Current memory footprint:
+2488
+Adding 10000 characters, 1 at a time
+Current memory footprint:
+6776
+Took 109.109232s to run
+
+$ ruby test/document_test.rb 
+Loaded suite test/document_test
+Started
+......F..F
+Finished in 0.007925 seconds.
+
+  1) Failure:
+test_can_delete_between_a_start_and_end_point(DocumentTest::TestDocumentRemove_text) [test/document_test.rb:55]:
+<"Held"> expected but was
+<"He">.
+
+  2) Failure:
+test_can_undo_remove_text_operations(DocumentTest::TestDocumentUndo) [test/document_test.rb:94]:
+<"Hlo"> expected but was
+<"Ho">.
+
+10 tests, 13 assertions, 2 failures, 0 errors
+
+## Interesting
+# Change tracking
+
+## Problems
+# make_change a monolith
+
+################
+# tim_liner.rb #
+################
+
+$ ruby memory_test.rb 
+Starting Memory:
+1488
+Adding 100 characters, 1 at a time
+Current memory footprint:
+1516
+Adding 1000 characters, 1 at a time
+Current memory footprint:
+1608
+Adding 10000 characters, 1 at a time
+Current memory footprint:
+2788
+Adding 100000 characters, 1 at a time
+Current memory footprint:
+11672
+Took 3.371039s to run
+
+$ ruby test/document_test.rb 
+Loaded suite test/document_test
+Started
+..........
+Finished in 0.001467 seconds.
+
+10 tests, 14 assertions, 0 failures, 0 errors
+
+###################
+# walton_hoops.rb #
+###################
+
+## Interesting
+# Uses 'versioning' metaphor
+#
+# Problems:
+# A bit verbose and low level
+
+$ ruby memory_test.rb 
+Starting Memory:
+1492
+Adding 100 characters, 1 at a time
+Current memory footprint:
+1528
+Adding 1000 characters, 1 at a time
+Current memory footprint:
+1700
+Adding 10000 characters, 1 at a time
+Current memory footprint:
+3044
+Adding 100000 characters, 1 at a time
+Current memory footprint:
+13452
+Took 4.613792s to run
+
+$ ruby test/document_test.rb 
+Loaded suite test/document_test
+Started
+..........
+Finished in 0.001601 seconds.
+
+10 tests, 14 assertions, 0 failures, 0 errors
+
+#####################
+# ricardo_mendes.rb #
+#####################
+#
+## Interesting
+#   Uses an explicit operations stack
+#   content is generated from op stack on demand
+#
+# Problems
+#   contents redefines attr_reader (should remove attr_reader)
+#   contents destructively updates an instance variable
+#   contents is recalculated each time, without caching (possible performance issue)
+
+$ ruby memory_test.rb 
+Starting Memory:
+1488
+Adding 100 characters, 1 at a time
+Current memory footprint:
+1516
+Adding 1000 characters, 1 at a time
+Current memory footprint:
+1640
+Adding 10000 characters, 1 at a time
+Current memory footprint:
+3124
+Adding 100000 characters, 1 at a time
+Current memory footprint:
+21840
+Took 6.394071s to run
+
+$ ruby test/document_test.rb 
+Loaded suite test/document_test
+Started
+..........
+Finished in 0.000984 seconds.
+
+10 tests, 14 assertions, 0 failures, 0 errors
+
+##############################
+# alberto_fernandez_capel.rb #
+##############################
+#
+## Interesting:
+#   Standard "Design Pattern" implementation
+#   execute() centralizes the reverted stack reset
+#   My initial solution was similar
+#
+# Problems
+#   Slightly more memory intensive
+#   Super verbose
+
+$ ruby memory_test.rb 
+Starting Memory:
+1492
+Adding 100 characters, 1 at a time
+Current memory footprint:
+1528
+Adding 1000 characters, 1 at a time
+Current memory footprint:
+1700
+Adding 10000 characters, 1 at a time
+Current memory footprint:
+3012
+Adding 100000 characters, 1 at a time
+Current memory footprint:
+16812
+Took 4.686938s to run
+
+$ ruby test/document_test.rb 
+Loaded suite test/document_test
+Started
+..........
+Finished in 0.000984 seconds.
+
+10 tests, 14 assertions, 0 failures, 0 errors
+
+################
+# ali_rizvi.rb #
+################
+#
+## Interesting:
+#   Most terse solution submitted
+#   Leverages lambdas for lazy evaluation
+#   Content generated on demand
+#   
+## Problems
+#   Content not cached, possible performance issue
+#   Subtle bug because reverted stack not cleared (see irb session below)
+
+>> require "ali_rizvi"
+=> true
+>> t = TextEditor::Document.new
+=> #<TextEditor::Document:0x6a964 @reverted=[], @commands=[], @contents="">
+>> t.add_text "Hello World"
+=> [#<Proc:0x00072754@./lib/ali_rizvi.rb:16>]
+>> t.contents
+=> "Hello World"
+>> t.add_text " Cup"
+=> [#<Proc:0x00072754@./lib/ali_rizvi.rb:16>, #<Proc:0x00072754@./lib/ali_rizvi.rb:16>]
+>> t.contents
+=> "Hello World Cup"
+>> t.undo
+=> [#<Proc:0x00072754@./lib/ali_rizvi.rb:16>]
+>> t.contents
+=> "Hello World"
+>> t.add_text(" Butter")
+=> [#<Proc:0x00072754@./lib/ali_rizvi.rb:16>, #<Proc:0x00072754@./lib/ali_rizvi.rb:16>]
+>> t.redo
+=> [#<Proc:0x00072754@./lib/ali_rizvi.rb:16>, #<Proc:0x00072754@./lib/ali_rizvi.rb:16>, #<Proc:0x00072754@./lib/ali_rizvi.rb:16>]
+>> t.contents
+=> "Hello World Butter Cup"
+
+$ ruby memory_test.rb 
+Starting Memory:
+1484
+Adding 100 characters, 1 at a time
+Current memory footprint:
+1540
+Adding 1000 characters, 1 at a time
+Current memory footprint:
+1940
+Adding 10000 characters, 1 at a time
+Current memory footprint:
+6792
+Adding 100000 characters, 1 at a time
+Current memory footprint:
+52160
+Took 0.349649s to run
+
+$ ruby test/document_test.rb 
+Loaded suite test/document_test
+Started
+..........
+Finished in 0.001265 seconds.
+
+10 tests, 14 assertions, 0 failures, 0 errors
+
+
+######################
+# ali_rizvi_fixed.rb #
+######################
+#
+## Interesting
+#   Minor tweaks to Ali Rizvi's solution by Gregory Brown
+#   to incorporate Alberto's execute() idea and fix the redo issue.
+#
+## Problems
+#   Except for bug fixes, same as Ali's code
+
+>> require "ali_rizvi_fixed"
+=> true
+>> t = TextEditor::Document.new
+=> #<TextEditor::Document:0x69ab4 @reverted=[], @commands=[], @contents="">
+>> t.add_text "Hello World"
+=> []
+>> t.add_text " Cup"
+=> []
+>> t.undo
+=> [#<Proc:0x00071638@./lib/ali_rizvi_fixed.rb:16>]
+>>  t.add_text(" Butter")
+=> []
+>> t.redo
+=> nil
+>> t.contents
+=> "Hello World Butter"
+
+$ ruby memory_test.rb 
+Starting Memory:
+1488
+Adding 100 characters, 1 at a time
+Current memory footprint:
+1548
+Adding 1000 characters, 1 at a time
+Current memory footprint:
+2008
+Adding 10000 characters, 1 at a time
+Current memory footprint:
+7000
+Adding 100000 characters, 1 at a time
+Current memory footprint:
+54160
+Took 0.448s to run
+
+$ ruby test/document_test.rb 
+Loaded suite test/document_test
+Started
+..........
+Finished in 0.002023 seconds.
+
+10 tests, 14 assertions, 0 failures, 0 errors
