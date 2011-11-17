@@ -1,4 +1,4 @@
-require "lib/ali_rizvi_fixed"
+require "lib/frugardc"
 
 start_time = Time.now
 
@@ -13,6 +13,14 @@ msg = "X"
 
   x.times do
     doc.add_text(msg)
+  end
+  puts "Undoing"
+  (x / 5).times do
+  	doc.undo
+  end
+  puts "Redoing"
+  (x / 5).times do
+  	doc.redo
   end
 
   puts "Current memory footprint:"
