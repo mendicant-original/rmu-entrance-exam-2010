@@ -2,19 +2,23 @@ module TextEditor
   class Document
     def initialize
       @contents = ""
-      @snapshots = []
+      @actions = []
       @reverted  = []
+      @index = 0
     end
     
     attr_reader :contents
 
     def add_text(text, position=-1)
-      snapshot(true)
+      actions << [:add,text,position]
+      index += 1
       contents.insert(position, text)
     end
 
     def remove_text(first=0, last=contents.length)
-      snapshot(true)
+      text = contents.slice(first...last)
+      actions << [:remove,first,text]
+      index += 1
       contents.slice!(first...last)
     end
 

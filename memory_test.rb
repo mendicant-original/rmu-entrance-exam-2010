@@ -1,4 +1,4 @@
-require "lib/ali_rizvi_fixed"
+require "lib/frugardc"
 
 start_time = Time.now
 
